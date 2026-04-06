@@ -6,9 +6,6 @@ namespace abl_emh1 {
 
 static const char *const TAG = "abl_emh1";
 
-static const uint8_t FUNCTION_STATUS_REPORT = 0x002E;
-static const uint8_t FUNCTION_GET_SERIAL = 0x0050;
-
 static const uint8_t STATE_SIZE = 22;
 static const char *const STATE[STATE_SIZE] = {
     "Waiting for EV",                       // A1
@@ -34,16 +31,16 @@ static const char *const STATE[STATE_SIZE] = {
     "Unintended opened contact",            // FB
     "Unknown State code"                    // default
 };
-static const char STATECODE[STATE_SIZE] = {
-    0xA1, 0xB1, 0xB2, 0xC2, 0xC3, 0xc4, 0xE0, 0xE1, 0xE2, 0xE3, 0xF1,
+static const uint8_t STATECODE[STATE_SIZE] = {
+    0xA1, 0xB1, 0xB2, 0xC2, 0xC3, 0xC4, 0xE0, 0xE1, 0xE2, 0xE3, 0xF1,
     0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0x00};
 
 void ABLeMH1::on_emh1_modbus_data(uint16_t function, uint16_t datalength, const uint8_t *data) {
   switch (function) {
-  case FUNCTION_STATUS_REPORT:
+  case emh1_modbus::REG_READ_CURRENT_FULL:
     this->decode_status_report_(data, datalength);
     break;
-  case FUNCTION_GET_SERIAL:
+  case emh1_modbus::REG_READ_SERIAL_NUMBER:
     this->decode_serial_number_(data, datalength);
     break;
   default:
@@ -70,7 +67,7 @@ void ABLeMH1::decode_serial_number_(const uint8_t *data, uint16_t datalength) {
 
 void ABLeMH1::decode_status_report_(const uint8_t *data, uint16_t datalength) {
   ESP_LOGI(TAG, "Status frame received");
-  if (data[0] != 0x2E) {
+  if (data[0] != emh1_modbus::REG_READ_CURRENT_FULL) {
     ESP_LOGD(TAG, "Expected data[0] to be 0x2E");
     return;
   }
@@ -99,7 +96,7 @@ void ABLeMH1::decode_status_report_(const uint8_t *data, uint16_t datalength) {
   }
   uint8_t v1 = data[2] & 0x03;
   uint8_t v2 = data[3];
-  float v = (v1 * 256 + v2) * 1000.0 / 16625.0;
+  float v = (v1 * 256 + v2) * 0.06;
   ESP_LOGD(TAG, "Read max current value 0x%02X 0x%02X", v1, v2);
   this->publish_state_(this->max_current_sensor_, v);
   this->no_response_count_ = 0;

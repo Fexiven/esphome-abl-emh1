@@ -6,6 +6,15 @@
 namespace esphome {
 namespace emh1_modbus {
 
+static const uint8_t FUNCTION_READ = 0x03;
+static const uint8_t FUNCTION_WRITE = 0x10;
+
+static const uint16_t REG_READ_STATE = 0x0004;
+static const uint16_t REG_MODIFY_STATE = 0x0005;
+static const uint16_t REG_SET_I_C_MAX = 0x0014;
+static const uint16_t REG_READ_CURRENT_FULL = 0x002E;
+static const uint16_t REG_READ_SERIAL_NUMBER = 0x0050;
+
 struct eMH1MessageT {
   uint8_t DeviceId;
   uint8_t FunctionCode;
