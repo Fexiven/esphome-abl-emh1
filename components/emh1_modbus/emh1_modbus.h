@@ -9,11 +9,13 @@ namespace emh1_modbus {
 static const uint8_t FUNCTION_READ = 0x03;
 static const uint8_t FUNCTION_WRITE = 0x10;
 
-static const uint16_t REG_READ_STATE = 0x0004;
+static const uint16_t REG_READ_ENABLED = 0x000F;
 static const uint16_t REG_MODIFY_STATE = 0x0005;
-static const uint16_t REG_SET_I_C_MAX = 0x0014;
+static const uint16_t REG_SET_I_CMAX = 0x0014;
 static const uint16_t REG_READ_CURRENT_FULL = 0x002E;
 static const uint16_t REG_READ_SERIAL_NUMBER = 0x0050;
+
+static const uint16_t NO_CURRENT_ALLOWED = 0x03E8;
 
 struct eMH1MessageT {
   uint8_t DeviceId;
@@ -42,10 +44,13 @@ public:
   float get_setup_priority() const override;
 
   void send();
-  void send_current(uint8_t x);
+  void send_current(float x);
   void send_enable(uint8_t x);
   void query_status_report();
   void get_serial();
+  void get_charging_enabled();
+  void send_charging_disable();
+  void send_duty_cycle(uint16_t duty_cycle);
   uint8_t hexencode_ascii(uint8_t val, char *outStr, uint8_t offset);
   uint8_t hexencode_ascii(uint16_t val, char *outStr, uint8_t offset);
   uint8_t hexencode_ascii(uint8_t *val, char *outStr, uint8_t offset, uint8_t cnt);

@@ -193,20 +193,37 @@ void eMH1Modbus::get_serial() {
   this->send();
 }
 
+void eMH1Modbus::get_charging_enabled() {
+  ESP_LOGW(TAG, "Get Enable Status");
+  eMH1MessageT *tx_message = &this->emh1_tx_message;
+  tx_message->DeviceId = DEVICE_ID;
+  tx_message->FunctionCode = FUNCTION_READ;
+  tx_message->Destination = REG_READ_ENABLED;
+  tx_message->DataLength = 1;
+  this->send();
+}
+
+void eMH1Modbus::send_charging_disable() {
+  ESP_LOGW(TAG, "Get Enable Status");
+  send_duty_cycle(NO_CURRENT_ALLOWED);
+}
+
 // set Max current
-void eMH1Modbus::send_current(uint8_t x) { // TODO: more granular control is possible, use float insted of int
+void eMH1Modbus::send_current(float x) {
+  ESP_LOGD(TAG, "Set Max Current to %.1f Amps", x);
+  send_duty_cycle(std::floor(x / 0.06));
+}
+
+void eMH1Modbus::send_duty_cycle(uint16_t duty_cycle) {
   eMH1MessageT *tx_message = &this->emh1_tx_message;
   tx_message->DeviceId = DEVICE_ID;
   tx_message->FunctionCode = FUNCTION_WRITE;
-  tx_message->Destination = REG_SET_I_C_MAX;
+  tx_message->Destination = REG_SET_I_CMAX;
   tx_message->DataLength = 1;
   tx_message->WriteBytes = 2;
-  uint16_t v = std::floor(x / 0.06);
-  ESP_LOGD(TAG, "Set Max Current to %d Amps (0x%04X)", x, v);
-  uint8_t v1 = 0 + (v >> 8);
-  uint8_t v2 = 0 + (v & 0x00FF);
-  tx_message->Data[0] = v1;
-  tx_message->Data[1] = v2;
+  ESP_LOGD(TAG, "Set Max Current duty cycle to %d/1000 (0x%04X)", duty_cycle, duty_cycle);
+  tx_message->Data[0] = (uint8_t) duty_cycle >> 8;
+  tx_message->Data[1] = (uint8_t) duty_cycle & 0x00FF;
   this->send();
 }
 
