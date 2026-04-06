@@ -193,12 +193,12 @@ void eMH1Modbus::get_serial() {
   this->send();
 }
 
-void eMH1Modbus::get_charging_enabled() {
+void eMH1Modbus::get_charging_allowed() {
   ESP_LOGW(TAG, "Get Enable Status");
   eMH1MessageT *tx_message = &this->emh1_tx_message;
   tx_message->DeviceId = DEVICE_ID;
   tx_message->FunctionCode = FUNCTION_READ;
-  tx_message->Destination = REG_READ_ENABLED;
+  tx_message->Destination = REG_READ_CHARGING_ALLOWED;
   tx_message->DataLength = 1;
   this->send();
 }

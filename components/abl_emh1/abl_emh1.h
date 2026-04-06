@@ -26,6 +26,7 @@ public:
   void set_duty_cycle_reduced_sensor(sensor::Sensor *duty_cycle_reduced_sensor) { duty_cycle_reduced_ = duty_cycle_reduced_sensor; }
   void set_ucp_status_sensor(sensor::Sensor *ucp_status_sensor) { ucp_status_sensor_ = ucp_status_sensor; }
   void set_outlet_state_sensor(sensor::Sensor *outlet_state_sensor) { outlet_state_sensor_ = outlet_state_sensor; }
+  void set_charging_allowed_sensor(sensor::Sensor *charging_allowed_sensor) { charging_allowed_sensor_ = charging_allowed_sensor; }
   void set_mode_text_sensor(text_sensor::TextSensor *mode_text_sensor) { mode_text_sensor_ = mode_text_sensor; }
   void set_serial_number_text_sensor( text_sensor::TextSensor *serial_number_text_sensor) { serial_number_text_sensor_ = serial_number_text_sensor; }
 
@@ -44,6 +45,7 @@ protected:
   sensor::Sensor *duty_cycle_reduced_;
   sensor::Sensor *ucp_status_sensor_;
   sensor::Sensor *outlet_state_sensor_;
+  sensor::Sensor *charging_allowed_sensor_;
 
   text_sensor::TextSensor *mode_text_sensor_;
   text_sensor::TextSensor *serial_number_text_sensor_;
@@ -52,6 +54,7 @@ protected:
 
   void decode_serial_number_(const uint8_t *data, uint16_t datalength);
   void decode_status_report_(const uint8_t *data, uint16_t datalength);
+  void decode_charging_allowed_(const uint8_t *data, uint16_t datalength);
   void publish_state_(sensor::Sensor *sensor, float value);
   void publish_state_(text_sensor::TextSensor *text_sensor, const std::string &state);
   void publish_device_offline_();

@@ -9,7 +9,7 @@ namespace emh1_modbus {
 static const uint8_t FUNCTION_READ = 0x03;
 static const uint8_t FUNCTION_WRITE = 0x10;
 
-static const uint16_t REG_READ_ENABLED = 0x000F;
+static const uint16_t REG_READ_CHARGING_ALLOWED = 0x000F;
 static const uint16_t REG_MODIFY_STATE = 0x0005;
 static const uint16_t REG_SET_I_CMAX = 0x0014;
 static const uint16_t REG_READ_CURRENT_FULL = 0x002E;
@@ -48,7 +48,7 @@ public:
   void send_enable(uint8_t x);
   void query_status_report();
   void get_serial();
-  void get_charging_enabled();
+  void get_charging_allowed();
   void send_charging_disable();
   void send_duty_cycle(uint16_t duty_cycle);
   uint8_t hexencode_ascii(uint8_t val, char *outStr, uint8_t offset);
@@ -73,6 +73,7 @@ public:
 
   void query_status_report() { this->parent_->query_status_report(); }
   void get_serial() { this->parent_->get_serial(); }
+  void get_charging_allowed() { this->parent_->get_charging_allowed(); }
 
 protected:
   friend eMH1Modbus;

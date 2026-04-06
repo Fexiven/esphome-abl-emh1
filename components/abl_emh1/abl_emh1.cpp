@@ -1,5 +1,6 @@
 #include "abl_emh1.h"
 #include "esphome/core/log.h"
+#include <cstdint>
 
 namespace esphome {
 namespace abl_emh1 {
@@ -39,6 +40,9 @@ void ABLeMH1::on_emh1_modbus_data(uint16_t function, uint16_t datalength, const 
   switch (function) {
   case emh1_modbus::REG_READ_CURRENT_FULL:
     this->decode_status_report_(data, datalength);
+    break;
+  case emh1_modbus::REG_READ_CHARGING_ALLOWED:
+    this->decode_charging_allowed_(data, datalength);
     break;
   case emh1_modbus::REG_READ_SERIAL_NUMBER:
     this->decode_serial_number_(data, datalength);
@@ -99,6 +103,23 @@ void ABLeMH1::decode_status_report_(const uint8_t *data, uint16_t datalength) {
   float v = (v1 * 256 + v2) * 0.06;
   ESP_LOGD(TAG, "Read max current value 0x%02X 0x%02X", v1, v2);
   this->publish_state_(this->max_current_sensor_, v);
+  this->no_response_count_ = 0;
+  // read charging allowed status after processing status report,
+  // because emh1_modbus cannot send / receive simultaneously
+  this->get_charging_allowed();
+}
+
+void ABLeMH1::decode_charging_allowed_(const uint8_t *data, uint16_t datalength) {
+  ESP_LOGI(TAG, "Charging allowed status received");
+  if (data[0] != emh1_modbus::REG_READ_CHARGING_ALLOWED) {
+    ESP_LOGD(TAG, "Expected data[0] to be 0x%02X", emh1_modbus::REG_READ_CHARGING_ALLOWED);
+    return;
+  }
+
+  uint16_t state = (data[6] << 8) + data[7];
+  uint8_t allowed = state == emh1_modbus::NO_CURRENT_ALLOWED ? 0 : 1;
+  ESP_LOGD(TAG, "Received charging state %d (0x%04X), charging allowed: %d", state, state, allowed);
+  this->publish_state_(this->charging_allowed_sensor_, allowed);
   this->no_response_count_ = 0;
 }
 
