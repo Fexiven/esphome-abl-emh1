@@ -1,7 +1,7 @@
 substitutions:
   name: abl_emh1
   device_description: "Monitor and configure ABL eMH1 Charger via RS485/Modbus-ASCII"
-  external_components_source: https://github.com/pascal-t/esphome-abl-emh1
+  external_components_source: github://pascal-t/esphome-abl-emh1@no-current-allowed
   tx_pin: "17"
   rx_pin: "16"
   flow_control_pin: "5"
@@ -18,12 +18,7 @@ esp32:
   board: esp32dev
 
 external_components:
-  - source: components
-#   source:
-#     type: git
-#     url: ${external_components_source}
-#     ref: no-current-allowed
-#   refresh: 0s
+  - source: ${external_components_source}
 
 wifi:
   ssid: !secret wifi_ssid
